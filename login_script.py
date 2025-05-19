@@ -6,13 +6,28 @@ def send_telegram_message(message):
     bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     chat_id = os.environ.get('TELEGRAM_CHAT_ID')
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    
     payload = {
         "chat_id": chat_id,
         "text": message,
         "parse_mode": "Markdown"
     }
-    response = requests.post(url, json=payload)
-    return response.json()
+    
+    try:
+        response = requests.post(
+            url=url,
+            headers=headers,
+            json=payload
+        )
+        response.raise_for_status()  # 检查响应状态
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"发送Telegram消息时出错: {str(e)}")
+        return None
 
 def login_koyeb(email, password):
     with sync_playwright() as p:
